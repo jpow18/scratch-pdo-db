@@ -1,0 +1,29 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+font-family: Arial, sans-serif;
+  background-color: #aaa;
+  color: #000000;
+}
+
+header {
+  text-align: center;
+  padding: 1em;
+}
+
+main {
+  display: flex;
+  justify-content: center;
+  padding: 1em;
+}
+
+form.checkbox {
+  padding: 1em;
+}
+
+footer {
+  text-align: center;
+  padding: 1em;
+}
