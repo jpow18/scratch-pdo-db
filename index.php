@@ -1,51 +1,67 @@
 <?php
-  $checkChoice = filter_input(INPUT_POST, 'checkchoice', FILTER_SANITIZE_SPECIAL_CHARS);
-  $tableChoice = filter_input(INPUT_POST, "tablechoice", FILTER_SANITIZE_SPECIAL_CHARS);
-  $columnChoice = filter_input(INPUT_POST, "columnchoice", FILTER_SANITIZE_SPECIAL_CHARS);
-  $rowChoice = filter_input(INPUT_POST, "rowchoice", FILTER_SANITIZE_SPECIAL_CHARS);
-  $valueChoice = filter_input(INPUT_POST, "valuechoice", FILTER_SANITIZE_SPECIAL_CHARS);
-  include_once "./config/Database.php";
-  var_dump($checkChoice);
-  var_dump($tableChoice);
-  var_dump($columnChoice);
-  var_dump($valueChoice);
-  // Conditional to build sql query/command
-  if ($checkChoice && $tableChoice && $columnChoice && $valueChoice && $rowChoice) {
-    switch($checkChoice) {
-      case "insert":
-        // first check if a row with same name already exists
-        $check_sql = 'SELECT * FROM '.$tableChoice.' WHERE '.$columnChoice.' = ?';
-        $check_stmt = $pdo->prepare($check_sql);
-        $check_stmt->execute([$valueChoice]);
-        $check_results = $check_stmt->fetchAll(PDO::FETCH_ASSOC);
-        var_dump($check_results);
-        // If no matching rows were found, insert a new row
-        if (empty($check_results)) {
-          $sql = 'INSERT INTO '. $tableChoice .' ('.$columnChoice.') VALUES (?)';
-          $stmt = $pdo->prepare($sql);
-          $stmt->execute([$valueChoice]);
-          $stmt->closeCursor();
-          break;
-        } else {
-          echo "<h1 style='text-align: center; color: red;'>Sorry, a row with that information already exists.</h1>";
-          break;
-        }
-        break;
-      
-      case "select":
-        $sql = "SELECT {$columnChoice} FROM {$tableChoice} WHERE Name = ?";
+$checkChoice = filter_input(INPUT_POST, 'checkchoice', FILTER_SANITIZE_SPECIAL_CHARS);
+$tableChoice = filter_input(INPUT_POST, "tablechoice", FILTER_SANITIZE_SPECIAL_CHARS);
+$columnChoice = filter_input(INPUT_POST, "columnchoice", FILTER_SANITIZE_SPECIAL_CHARS);
+$rowChoice = filter_input(INPUT_POST, "rowchoice", FILTER_SANITIZE_SPECIAL_CHARS);
+$valueChoice = filter_input(INPUT_POST, "valuechoice", FILTER_SANITIZE_SPECIAL_CHARS);
+include_once "./config/Database.php";
+var_dump($checkChoice);
+var_dump($tableChoice);
+var_dump($columnChoice);
+var_dump($rowChoice);
+var_dump($valueChoice);
+// Conditional to build sql query/command
+if ($checkChoice && $tableChoice && $columnChoice && $valueChoice && $rowChoice) {
+  switch ($checkChoice) {
+    case "insert":
+      // first check if a row with same name already exists
+      $check_sql = 'SELECT * FROM ' . $tableChoice . ' WHERE ' . $columnChoice . ' = ?';
+      $check_stmt = $pdo->prepare($check_sql);
+      $check_stmt->execute([$valueChoice]);
+      $check_results = $check_stmt->fetchAll(PDO::FETCH_ASSOC);
+      var_dump($check_results);
+      // If no matching rows were found, insert a new row
+      if (empty($check_results)) {
+        $sql = 'INSERT INTO ' . $tableChoice . ' (' . $columnChoice . ') VALUES (?)';
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([$rowChoice]);
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        if (!empty($results)) {
-          echo "<h2>{$rowChoice} {$columnChoice}: {$results[0][$columnChoice]}</h2>";
-        }
-        $stmt->closeCursor(); 
+        $stmt->execute([$valueChoice]);
+        $stmt->closeCursor();
         break;
-    }
+      } else {
+        echo "<h1 style='text-align: center; color: red;'>Sorry, a row with that information already exists.</h1>";
+        break;
+      }
+      break;
 
-
-
+    case "select":
+      $sql = "SELECT {$columnChoice} FROM {$tableChoice} WHERE Name = ?";
+      $stmt = $pdo->prepare($sql);
+      $stmt->execute([$rowChoice]);
+      $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      if (!empty($results)) {
+        echo "<h2>{$rowChoice} {$columnChoice}: {$results[0][$columnChoice]}</h2>";
+      } else {
+        echo "<h2>Didn't find anything using those parameters.</h2>";
+      }
+      $stmt->closeCursor();
+      break;
+    
+    case "delete":
+      $sql = "DELETE FROM {$tableChoice} where {$columnChoice} = ?";
+      $stmt = $pdo->prepare($sql);
+      $stmt->execute([$rowChoice]);
+      if ($stmt->rowCount() > 0) {
+        echo "<h2>Record deleted successfully.</h2>";
+      } else {
+        echo "No record found to delete.";
+      }
+      break;
+    
+    case "update":
+      $sql = "UPDATE {$tableChoice} SET {$columnChoice} = ? WHERE {$rowChoice} = ?";
+      $stmt = $pdo->prepare($sql);
+      break;
+  }
 }
 
 
@@ -97,6 +113,7 @@
         <input type="text" id="value" name="valuechoice" placeholder="100,000,999">
       </section>
       <input type="submit" value="submit">
+      <input type="button" value="Clear" onclick="window.location.href='index.php'">
     </form>
   </main>
   <footer>
