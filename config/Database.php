@@ -6,7 +6,7 @@
   $dbName = 'world';
 
   // Set DSN (Data Source Name)
-  $dsn = 'mysql:host='.$host.';dbname='.$dbname;
+  $dsn = 'mysql:host='.$host.';dbname='.$dbName;
 
   try {
     $pdo = new PDO($dsn, $user, $pWord);
