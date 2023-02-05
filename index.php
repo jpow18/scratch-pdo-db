@@ -15,16 +15,16 @@ if ($checkChoice && $tableChoice && $columnChoice && $valueChoice && $rowChoice)
   switch ($checkChoice) {
     case "insert":
       // first check if a row with same name already exists
-      $check_sql = 'SELECT * FROM ' . $tableChoice . ' WHERE ' . $columnChoice . ' = ?';
+      $check_sql = 'SELECT * FROM ' . $tableChoice . ' WHERE ' . $columnChoice . ' = :valuechoice';
       $check_stmt = $pdo->prepare($check_sql);
-      $check_stmt->execute([$valueChoice]);
+      $check_stmt->execute(["valuechoice" => $valueChoice]);
       $check_results = $check_stmt->fetchAll(PDO::FETCH_ASSOC);
       var_dump($check_results);
       // If no matching rows were found, insert a new row
       if (empty($check_results)) {
-        $sql = 'INSERT INTO ' . $tableChoice . ' (' . $columnChoice . ') VALUES (?)';
+        $sql = 'INSERT INTO ' . $tableChoice . ' (' . $columnChoice . ') VALUES (:valuechoice)';
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([$valueChoice]);
+        $stmt->execute(["valuechoice" => $valueChoice]);
         $stmt->closeCursor();
         break;
       } else {
@@ -34,9 +34,9 @@ if ($checkChoice && $tableChoice && $columnChoice && $valueChoice && $rowChoice)
       break;
 
     case "select":
-      $sql = "SELECT {$columnChoice} FROM {$tableChoice} WHERE Name = ?";
+      $sql = "SELECT {$columnChoice} FROM {$tableChoice} WHERE Name = :rowchoice";
       $stmt = $pdo->prepare($sql);
-      $stmt->execute([$rowChoice]);
+      $stmt->execute(["rowchoice" => $rowChoice]);
       $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
       if (!empty($results)) {
         echo "<h2>{$rowChoice} {$columnChoice}: {$results[0][$columnChoice]}</h2>";
@@ -47,9 +47,9 @@ if ($checkChoice && $tableChoice && $columnChoice && $valueChoice && $rowChoice)
       break;
     
     case "delete":
-      $sql = "DELETE FROM {$tableChoice} where {$columnChoice} = ?";
+      $sql = "DELETE FROM {$tableChoice} where {$columnChoice} = :rowchoice";
       $stmt = $pdo->prepare($sql);
-      $stmt->execute([$rowChoice]);
+      $stmt->execute(["rowchoice" => $rowChoice]);
       if ($stmt->rowCount() > 0) {
         echo "<h2>Record deleted successfully.</h2>";
       } else {
