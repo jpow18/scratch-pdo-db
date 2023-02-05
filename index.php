@@ -5,13 +5,12 @@
   $rowChoice = filter_input(INPUT_POST, "rowchoice", FILTER_SANITIZE_SPECIAL_CHARS);
   $valueChoice = filter_input(INPUT_POST, "valuechoice", FILTER_SANITIZE_SPECIAL_CHARS);
   include_once "./config/Database.php";
-  // var_dump($checkChoice);
-  // var_dump($tableChoice);
-  // var_dump($columnChoice);
-  // var_dump($valueChoice);
+  var_dump($checkChoice);
+  var_dump($tableChoice);
+  var_dump($columnChoice);
+  var_dump($valueChoice);
   // Conditional to build sql query/command
   if ($checkChoice && $tableChoice && $columnChoice && $valueChoice && $rowChoice) {
-    echo $checkChoice;
     switch($checkChoice) {
       case "insert":
         // first check if a row with same name already exists
@@ -31,6 +30,18 @@
           echo "<h1 style='text-align: center; color: red;'>Sorry, a row with that information already exists.</h1>";
           break;
         }
+        break;
+      
+      case "select":
+        $sql = "SELECT {$columnChoice} FROM {$tableChoice} WHERE Name = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$rowChoice]);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if (!empty($results)) {
+          echo "<h2>{$rowChoice} {$columnChoice}: {$results[0][$columnChoice]}</h2>";
+        }
+        $stmt->closeCursor(); 
+        break;
     }
 
 
